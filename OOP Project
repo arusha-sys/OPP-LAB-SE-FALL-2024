@@ -1,0 +1,241 @@
+================OOP PROJECT ====================
+============TrainReservationSystem==================
+
+import java.util.Scanner;
+public class TrainReservationSystem {
+
+   
+    public static void main(String[] args) {
+        ReservationManager reservationManager = new ReservationManager();
+        Scanner scanner = new Scanner(System.in);
+
+        Train train1 = new ExpressTrain(1, "Express", 50);
+        Train train2 = new LocalTrain(2, "Local", 30);
+
+        reservationManager.addTrain(train1);
+        reservationManager.addTrain(train2);
+
+        while (true) {
+            System.out.println("1. Display Trains");
+            System.out.println("2. Make Reservation");
+            System.out.println("3. Update Train");
+            System.out.println("4. Delete Train");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    reservationManager.displayTrains();
+                    break;
+                case 2:
+                    System.out.print("Enter Train Number: ");
+                    int trainNumber = scanner.nextInt();
+                    System.out.print("Enter Passenger Name: ");
+                    String passengerName = scanner.next();
+                    System.out.print("Enter Number of Seats: ");
+                    int numSeats = scanner.nextInt();
+                    reservationManager.makeReservation(trainNumber, passengerName, numSeats);
+                    break;
+                case 3:
+                    System.out.print("Enter Train Number to Update: ");
+                    int updateTrainNumber = scanner.nextInt();
+                    System.out.print("Enter New Train Name: ");
+                    String updateTrainName = scanner.next();
+                    System.out.print("Enter New Total Seats: ");
+                    int updateTotalSeats = scanner.nextInt();
+                    reservationManager.updateTrain(updateTrainNumber, updateTrainName, updateTotalSeats);
+                    break;
+                case 4:
+                    System.out.print("Enter Train Number to Delete: ");
+                    int deleteTrainNumber = scanner.nextInt();
+                    reservationManager.deleteTrain(deleteTrainNumber);
+                    break;
+                case 5:
+                    System.out.println("Exiting program. Goodbye!");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+
+
+===================Train=================
+
+abstract class Train {
+    private int trainNumber;
+    private String trainName;
+    private int totalSeats;
+    private int bookedSeats;
+
+    public Train(int trainNumber, String trainName, int totalSeats) {
+        this.trainNumber = trainNumber;
+        this.trainName = trainName;
+        this.totalSeats = totalSeats;
+        this.bookedSeats = 0;
+    }
+
+    public int getTrainNumber() {
+        return trainNumber;
+    }
+
+    public String getTrainName() {
+        return trainName;
+    }
+
+    public void setTrainName(String trainName) {
+        this.trainName = trainName;
+    }
+
+    public int getTotalSeats() {
+        return totalSeats;
+    }
+
+    public void setTotalSeats(int totalSeats) {
+        this.totalSeats = totalSeats;
+    }
+
+    public int getAvailableSeats() {
+        return totalSeats - bookedSeats;
+    }
+
+    public void bookSeats(int seats) {
+        if (seats <= getAvailableSeats()) {
+            bookedSeats += seats;
+        } else {
+            throw new IllegalArgumentException("Not enough seats available!");
+        }
+    }
+
+    public void cancelSeats(int seats) {
+        if (seats <= bookedSeats) {
+            bookedSeats -= seats;
+        } else {
+            throw new IllegalArgumentException("Cannot cancel more seats than are booked!");
+        }
+    }
+
+    public abstract void displayInfo();
+
+    public String toString() {
+        return "Train Name: " + trainName + ", Train Number: " + trainNumber +
+               ", Total Seats: " + totalSeats + ", Booked Seats: " + bookedSeats +
+               ", Available Seats: " + getAvailableSeats();
+    }
+}
+
+class ExpressTrain extends Train {
+    public ExpressTrain(int trainNumber, String trainName, int totalSeats) {
+        super(trainNumber, trainName, totalSeats);
+    }
+
+    public void displayInfo() {
+        System.out.println("Express Train: " + getTrainName() + " (Number: " + getTrainNumber() + "), Available Seats: " + getAvailableSeats());
+    }
+}
+
+class LocalTrain extends Train {
+    public LocalTrain(int trainNumber, String trainName, int totalSeats) {
+        super(trainNumber, trainName, totalSeats);
+    }
+
+    public void displayInfo() {
+        System.out.println("Local Train: " + getTrainName() + " (Number: " + getTrainNumber() + "), Available Seats: " + getAvailableSeats());
+    }
+}
+
+
+        }
+    
+    }
+}
+
+
+==================ReservationManager==============
+
+class ReservationManager {
+    private List<Train> trains;
+
+    public ReservationManager() {
+        this.trains = new ArrayList<>();
+    }
+
+    public void addTrain(Train train) {
+        trains.add(train);
+    }
+
+    public void displayTrains() {
+        if (trains.isEmpty()) {
+            System.out.println("No trains available.");
+        } else {
+            for (Train train : trains) {
+                train.displayInfo();
+            }
+        }
+    }
+
+    public void makeReservation(int trainNumber, String passengerName, int seats) {
+        for (Train train : trains) {
+            if (train.getTrainNumber() == trainNumber) {
+                try {
+                    train.bookSeats(seats);
+                    System.out.println("Reservation successful for " + passengerName + " on Train " + train.getTrainName());
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+                return;
+            }
+        }
+        System.out.println("Train not found.");
+    }
+
+    public void updateTrain(int trainNumber, String newName, int newSeats) {
+        for (Train train : trains) {
+            if (train.getTrainNumber() == trainNumber) {
+                train.setTrainName(newName);
+                train.setTotalSeats(newSeats);
+                System.out.println("Train updated successfully.");
+                return;
+            }
+        }
+        System.out.println("Train not found.");
+    }
+
+    public void deleteTrain(int trainNumber) {
+        trains.removeIf(train -> train.getTrainNumber() == trainNumber);
+        System.out.println("Train deleted successfully.");
+    }
+} 
+
+
+===================Reservation=====================
+
+public class Reservation {
+      private int reservationId;
+    private int trainNumber;
+    private String passengerName;
+    private int numSeats;
+
+    public Reservation(int reservationId, int trainNumber, String passengerName, int numSeats) {
+        this.reservationId = reservationId;
+        this.trainNumber = trainNumber;
+        this.passengerName = passengerName;
+        this.numSeats = numSeats;
+    }
+
+    public int getReservationId() {
+        return reservationId;
+    }
+
+    public int getTrainNumber() {
+        return trainNumber;
+    }
+
+    public String getPassengerName() {
+        return passengerName;
+    }
+
+    public int getNumSeats() {
+        return numSeats;
+    }
+}
+
